@@ -1,0 +1,465 @@
+/* 建族谱向导页面。节点和连线样式沿用 familienbaum.css，这里覆盖页面级样式。 */
+
+:root {
+	--bg: #1A1A1A;
+	--card: #242424;
+	--card-border: #383838;
+	--text: #EDEDED;
+	--muted: #A0A0A0;
+	--accent: #C9A15B;
+	--accent-text: #1A1A1A;
+	--ok: #7CC48A;
+	--warn: #E3B35A;
+	--error: #EE7B6E;
+	--input-bg: #1A1A1A;
+	--input-border: #505050;
+}
+
+[hidden] {
+	display: none !important;
+}
+
+html, body {
+	margin: 0;
+	height: auto;
+}
+
+body {
+	overflow: auto;
+	background: var(--bg);
+	color: var(--text);
+	font: 16px/1.6 -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+}
+
+body.graph-mode {
+	overflow: hidden;
+	height: 100vh;
+}
+
+h1 {
+	font-size: 18px;
+	margin: 0 0 8px;
+	color: var(--accent);
+	font-weight: 600;
+}
+
+h2 {
+	font-size: 22px;
+	margin: 8px 0 4px;
+}
+
+h3 {
+	font-size: 17px;
+	margin: 0;
+}
+
+.group-title {
+	margin: 24px 0 8px;
+	color: var(--accent);
+}
+
+.lead {
+	color: var(--muted);
+	margin-top: 0;
+}
+
+/* ---------- 布局 ---------- */
+.wizard-header,
+.wizard-main,
+.wizard-nav {
+	max-width: 760px;
+	margin: 0 auto;
+	padding: 0 16px;
+	box-sizing: border-box;
+}
+
+.wizard-header {
+	padding-top: 20px;
+}
+
+.wizard-main {
+	padding-bottom: 8px;
+}
+
+.wizard-nav {
+	position: sticky;
+	bottom: 0;
+	background: linear-gradient(to bottom, rgba(26, 26, 26, 0), var(--bg) 30%);
+	padding-top: 20px;
+	padding-bottom: 16px;
+}
+
+.nav-buttons {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.nav-buttons .button {
+	flex: 0 1 180px;
+}
+
+.progress-text {
+	color: var(--muted);
+	font-size: 14px;
+	margin-bottom: 6px;
+}
+
+.progress-bar {
+	height: 6px;
+	background: #333;
+	border-radius: 3px;
+	overflow: hidden;
+	margin-bottom: 12px;
+}
+
+.progress-fill {
+	height: 100%;
+	background: var(--accent);
+	transition: width 0.3s;
+}
+
+/* ---------- 按钮 ---------- */
+.button,
+button.button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 10px 16px;
+	font: inherit;
+	font-size: 15px;
+	border: 1px solid var(--input-border);
+	border-radius: 8px;
+	background: #303030;
+	color: var(--text);
+	cursor: pointer;
+	box-sizing: border-box;
+}
+
+.button:hover:not(:disabled) {
+	background: #3A3A3A;
+}
+
+.button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+.button.primary {
+	background: var(--accent);
+	border-color: var(--accent);
+	color: var(--accent-text);
+	font-weight: 600;
+}
+
+.button.primary:hover:not(:disabled) {
+	background: #D8B272;
+}
+
+.button.danger {
+	color: var(--error);
+}
+
+.button:disabled {
+	opacity: 0.4;
+	cursor: default;
+}
+
+.button.small {
+	padding: 6px 12px;
+	font-size: 14px;
+}
+
+.button-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin: 12px 0;
+}
+
+.link-button {
+	background: none;
+	border: none;
+	padding: 4px 6px;
+	font: inherit;
+	font-size: 14px;
+	color: var(--muted);
+	cursor: pointer;
+}
+
+.link-button.danger {
+	color: var(--error);
+}
+
+/* ---------- 人员卡片 ---------- */
+.person-card {
+	background: var(--card);
+	border: 1px solid var(--card-border);
+	border-radius: 12px;
+	padding: 16px;
+	margin: 12px 0;
+}
+
+.card-head {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.card-head h3 {
+	flex: 1;
+}
+
+.card-body {
+	display: flex;
+	gap: 20px;
+	align-items: flex-start;
+}
+
+.card-fields {
+	flex: 1;
+	min-width: 0;
+}
+
+.photo {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	width: 112px;
+	flex-shrink: 0;
+}
+
+.photo-preview,
+.photo-empty {
+	width: 96px;
+	height: 96px;
+	border-radius: 50%;
+	border: 2px solid var(--input-border);
+	object-fit: cover;
+	box-sizing: border-box;
+}
+
+.photo-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--muted);
+	font-size: 13px;
+	background: #1E1E1E;
+}
+
+.photo-status {
+	font-size: 12px;
+	color: var(--muted);
+	text-align: center;
+	word-break: break-all;
+}
+
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin-bottom: 12px;
+}
+
+/* 覆盖 familienbaum.css 中 12px 的表单字号 */
+.wizard-main label,
+.wizard-main input,
+.wizard-main textarea,
+.wizard-main select {
+	font: inherit;
+	font-size: 15px;
+	color: var(--text);
+}
+
+.field label {
+	background: none;
+	color: var(--muted);
+	font-size: 14px;
+}
+
+.wizard-main input[type=text],
+.wizard-main input[type=date],
+.wizard-main textarea,
+.wizard-main select {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 8px 10px;
+	background: var(--input-bg);
+	border: 1px solid var(--input-border);
+	border-radius: 6px;
+	color-scheme: dark;
+}
+
+.wizard-main textarea {
+	resize: vertical;
+	min-height: 72px;
+}
+
+.wizard-main select.rel-select {
+	width: auto;
+	padding: 4px 8px;
+}
+
+.hint {
+	font-size: 13px;
+	color: var(--muted);
+}
+
+details.more summary {
+	cursor: pointer;
+	color: var(--accent);
+	font-size: 14px;
+	margin-bottom: 10px;
+}
+
+/* ---------- 提示信息 ---------- */
+.message {
+	margin: 8px 0;
+	padding: 10px 12px;
+	border-radius: 8px;
+	background: #2A2A2A;
+	border-left: 3px solid var(--muted);
+	font-size: 14px;
+}
+
+.message.ok { border-left-color: var(--ok); }
+.message.warn { border-left-color: var(--warn); }
+.message.error { border-left-color: var(--error); }
+
+.warn-text {
+	color: var(--warn);
+}
+
+/* ---------- 「请用启动器打开」提示 ---------- */
+.launcher-required {
+	max-width: 760px;
+	margin: 0 auto;
+	padding: 32px 16px;
+	box-sizing: border-box;
+}
+
+.launcher-required h2 {
+	color: var(--warn);
+}
+
+.launcher-required li {
+	margin: 8px 0;
+}
+
+.launcher-required code {
+	background: #2A2A2A;
+	padding: 2px 6px;
+	border-radius: 4px;
+}
+
+.graph-toolbar a {
+	color: var(--accent);
+}
+
+/* ---------- 封面预览 ---------- */
+.cover-preview {
+	margin: 16px auto;
+	max-width: 280px;
+	aspect-ratio: 210 / 297;
+	background: #F3E9D5;
+	border: 3px double #8C1C13;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 24px;
+	padding: 16px;
+	box-sizing: border-box;
+	font-family: "KaiTi", "STKaiti", "Kaiti SC", serif;
+}
+
+.cover-title {
+	font-size: 30px;
+	color: #8C1C13;
+}
+
+.cover-motto {
+	font-size: 14px;
+	color: #6B5344;
+	text-align: center;
+}
+
+/* ---------- 关系图 ---------- */
+.graph-view {
+	position: fixed;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.graph-toolbar {
+	padding: 8px 16px;
+	background: rgba(26, 26, 26, 0.95);
+	border-bottom: 1px solid var(--card-border);
+}
+
+.graph-toolbar .button-row {
+	margin: 4px 0;
+}
+
+.graph-status {
+	font-size: 13px;
+	color: var(--muted);
+}
+
+.graph-canvas {
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.graph-canvas svg {
+	display: block;
+	cursor: grab;
+}
+
+/* ---------- 手机宽度 ---------- */
+@media (max-width: 560px) {
+	.card-body {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.photo {
+		width: 100%;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: flex-start;
+	}
+
+	.photo-preview,
+	.photo-empty {
+		width: 72px;
+		height: 72px;
+	}
+
+	.photo-status {
+		text-align: left;
+	}
+
+	.graph-toolbar .button {
+		padding: 6px 10px;
+		font-size: 13px;
+	}
+}

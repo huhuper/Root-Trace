@@ -66,6 +66,39 @@ FONT_CANDIDATES = [
 ]
 
 
+def strip_line_comments(text: str) -> str:
+    """去掉 // 注释，但保留字符串里的 //（例如生平里写的网址）。"""
+    out = []
+    in_string = False
+    escape = False
+    quote = ""
+    i = 0
+    while i < len(text):
+        ch = text[i]
+        if in_string:
+            out.append(ch)
+            if escape:
+                escape = False
+            elif ch == "\\":
+                escape = True
+            elif ch == quote:
+                in_string = False
+        elif ch in "\"'":
+            in_string = True
+            quote = ch
+            out.append(ch)
+        elif text.startswith("//", i):
+            newline = text.find("\n", i)
+            if newline == -1:
+                break
+            i = newline
+            continue
+        else:
+            out.append(ch)
+        i += 1
+    return "".join(out)
+
+
 def parse_input_js(path: Path) -> dict:
     """解析 input.js 中的 _input 对象（JSON 兼容的对象字面量）。"""
     text = path.read_text(encoding="utf-8")
@@ -107,8 +140,7 @@ def parse_input_js(path: Path) -> dict:
     else:
         raise ValueError("无法匹配 _input 对象的结束括号")
 
-    literal = text[start:end]
-    literal = re.sub(r"//[^\n]*", "", literal)
+    literal = strip_line_comments(text[start:end])
     try:
         return json.loads(literal)
     except json.JSONDecodeError as exc:
@@ -734,34 +766,49 @@ def main(argv: list[str] | None = None) -> int:
         print(f"找不到输入文件：{args.input}", file=sys.stderr)
         return 1
 
-    data = parse_input_js(args.input)
-    if "members" not in data or "links" not in data:
-        print("input 缺少 members 或 links", file=sys.stderr)
-        return 1
+    summary = generate(args.input, args.output)
 
-    base_dir = args.input.resolve().parent
+    print(f"使用字体：{summary['font']}")
+    print(f"封面：{summary['title']}")
+    print(f"祖训：{summary['motto']}")
+    print(f"始祖：{summary['root_name']}（{summary['root_id']}）")
+    for gen, names in summary["generations"]:
+        print(f"  第 {gen} 世：{', '.join(names)}")
+    count = summary["member_count"]
+    print(f"已生成：{args.output}（封面 + {count} 人，共 {count + 1} 页）")
+    return 0
+
+
+def generate(input_path: Path, output_path: Path) -> dict:
+    """解析 input.js 并生成 PDF，返回摘要。数据有问题时抛出 ValueError（中文说明）。
+    供命令行和本地启动器（start.py）共用。"""
+    input_path = Path(input_path)
+    data = parse_input_js(input_path)
+    if "members" not in data or "links" not in data:
+        raise ValueError("input 缺少 members 或 links")
+
+    base_dir = input_path.resolve().parent
     unions = build_unions(data["links"], data["members"])
     root_id = resolve_root(data, unions)
     generations = assign_generations(root_id, unions, data["members"])
 
     fonts = register_fonts()
-    print(f"使用字体：{fonts['body']}")
-
     cover = resolve_cover(data, root_id)
-    build_pdf(data, generations, args.output, fonts, base_dir, root_id)
+    build_pdf(data, generations, Path(output_path), fonts, base_dir, root_id)
 
     by_gen: dict[int, list[str]] = defaultdict(list)
     for pid, gen in generations.items():
-        name = data["members"][pid].get("name", pid)
-        by_gen[gen].append(name)
+        by_gen[gen].append(data["members"][pid].get("name", pid))
 
-    print(f"封面：{cover['title']}")
-    print(f"祖训：{cover['motto']}")
-    print(f"始祖：{data['members'][root_id].get('name', root_id)}（{root_id}）")
-    for gen in sorted(by_gen):
-        print(f"  第 {gen} 世：{', '.join(by_gen[gen])}")
-    print(f"已生成：{args.output}（封面 + {len(data['members'])} 人，共 {len(data['members']) + 1} 页）")
-    return 0
+    return {
+        "font": fonts["body"],
+        "title": cover["title"],
+        "motto": cover["motto"],
+        "root_id": root_id,
+        "root_name": data["members"][root_id].get("name", root_id),
+        "generations": [(gen, by_gen[gen]) for gen in sorted(by_gen)],
+        "member_count": len(data["members"]),
+    }
 
 
 if __name__ == "__main__":

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>建族谱向导 · Root Trace</title>
+<link rel="stylesheet" href="css/familienbaum.css">
+<link rel="stylesheet" href="css/wizard.css">
+</head>
+
+<body>
+	<header id="wizard-header" class="wizard-header">
+		<h1>Root Trace 族谱 · 建族谱向导</h1>
+		<div id="wizard-progress"></div>
+	</header>
+
+	<main id="wizard-main" class="wizard-main"></main>
+	<footer id="wizard-nav" class="wizard-nav"></footer>
+
+	<!-- 直接双击打开 HTML 时显示：浏览器不能写文件，也不能生成 PDF，需要通过启动器打开 -->
+	<section id="launcher-required" class="launcher-required" hidden>
+		<h1>Root Trace 族谱 · 建族谱向导</h1>
+		<h2>请通过「启动向导」打开本页面</h2>
+		<p>向导需要把数据保存到项目文件夹里，并生成 PDF，这些操作要由一个本地小程序来完成，直接双击 HTML 文件是做不到的。</p>
+		<ol>
+			<li><strong>Windows</strong>：双击项目文件夹里的 <code>启动向导.bat</code></li>
+			<li><strong>Mac</strong>：双击项目文件夹里的 <code>启动向导.command</code>（第一次如果提示无法打开，请「右键 → 打开」）</li>
+			<li><strong>命令行</strong>：在项目文件夹里运行 <code>python start.py</code></li>
+		</ol>
+		<p class="hint">需要电脑上已经安装 Python 3。启动后浏览器会自动打开向导，使用期间请不要关闭那个黑色的窗口。</p>
+	</section>
+
+	<div id="graph-view" class="graph-view" hidden>
+		<div class="graph-toolbar">
+			<div class="button-row">
+				<button type="button" class="button" id="back-to-edit">← 返回修改</button>
+				<button type="button" class="button" id="show-all">显示全部</button>
+				<button type="button" class="button primary" id="make-pdf">生成族谱 PDF</button>
+				<button type="button" class="button danger" id="restart">重新开始</button>
+			</div>
+			<div id="graph-status" class="graph-status"></div>
+			<div id="graph-message"></div>
+		</div>
+		<div id="graph-canvas" class="graph-canvas"></div>
+	</div>
+
+	<script src="https://d3js.org/d3.v7.min.js"></script>
+	<script src="js/dag.js"></script>
+	<script src="js/dag_layout.js"></script>
+	<script src="js/dag_with_relations.js"></script>
+	<script src="js/dag_with_family_data.js"></script>
+	<script src="js/dag_relaxation.js"></script>
+	<script src="js/dark_mode.js"></script>
+	<script src="js/familienbaum.js"></script>
+	<script src="js/editor.js"></script>
+	<script src="js/wizard_data.js"></script>
+	<script src="js/local_server.js"></script>
+	<script src="js/wizard.js"></script>
+</body>
+
+</html>

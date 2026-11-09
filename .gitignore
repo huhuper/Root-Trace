@@ -1,2 +1,4 @@
 .vscode/
 data/data_large.js
+__pycache__/
+input.backup.js
